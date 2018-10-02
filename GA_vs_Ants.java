@@ -21,18 +21,21 @@ public class GA_vs_Ants {
    public GA_vs_Ants(double cLower, double cUpper, double mLower, double mUpper) {
       
 //      ga = new GA(8245, 500);
-      ga = new GA(1000, 200, cLower, cUpper, mLower, mUpper);
+      //ga = new GA(1000, 200, cLower, cUpper, mLower, mUpper);
 //      ant = new Ant_Colony(1000, 1, 5, 500, 0.5);
-      loadData();
+      loadData(cLower, cUpper, mLower, mUpper);
       
    }
    
-   private void loadData() {
+   private void loadData(double cLower, double cUpper, double mLower, double mUpper) {
       
-      //File file = new File("berlin52.txt");
+      File file = new File("berlin52.txt");
       //File file = new File("dj38.tsp");
-      File file = new File("pr76.tsp");
+      //File file = new File("pr76.tsp");
       ArrayList<String> cities = new ArrayList<>();
+	  
+	  double crossover = cLower;
+	  double mutation = mLower;
       
       
       try {
@@ -44,9 +47,35 @@ public class GA_vs_Ants {
             cities.add(line);
          }
          
-         ga.add(cities);
+         
 //         ant.add(cities);
-         ga.evolve();
+		 int numberOfTimes = 1;
+		 while (crossover <= cUpper) {
+			 ga = new GA(1000, 200, crossover, mutation);
+			 //ga.add(cities);
+			ga.evolve(cities);
+			
+			System.out.println("Changing crossover and mutation for the "+ numberOfTimes+" time");
+			numberOfTimes++;
+			
+			mutation += 0.005;
+         
+			 if (mutation  > mUpper) {
+				mutation = mLower;
+				crossover += 0.1;
+			 }
+		 }
+		 
+		 System.out.println("================================================");
+		 System.out.println("==                                            ==");
+		 System.out.println("==                                            ==");
+		 System.out.println("==                                            ==");
+		 System.out.println("==                   DONE                     ==");
+		 System.out.println("==                                            ==");
+		 System.out.println("==                                            ==");
+		 System.out.println("==                                            ==");
+		 System.out.println("================================================");
+		 
 //         ant.findBest();
          
       } catch (FileNotFoundException ex) {

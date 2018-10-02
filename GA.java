@@ -24,14 +24,15 @@ public class GA {
    
    private Random rand;
    
-   public GA(int num_of_generations, int pop_size, double cLower, double cUpper, double mLower, double mUpper) {
+   //, double cLower, double cUpper, double mLower, double mUpper
+   public GA(int num_of_generations, int pop_size, double c, double m) {
       this.GEN_NUM = num_of_generations;
       this.POP_SIZE = pop_size;
       this.globalBest = Double.MAX_VALUE;
-      crossoverLower = cLower;
-      crossoverUpper = cUpper;
-      mutationLower = mLower;
-      mutationUpper = mUpper;
+      crossover = c;
+      //crossoverUpper = cUpper;
+      mutation = m;
+      //mutationUpper = mUpper;
       rand = new Random(500);
       
    }
@@ -42,16 +43,18 @@ public class GA {
       
    }
    
-   public void evolve() {
+   public void evolve(ArrayList<String> file) {
       
 //      long start, end;
       
-      int numberOfTimes = 1;
-      mutation = mutationLower;
-      crossover = crossoverLower;
+      //int numberOfTimes = 1;
+      //mutation = mutationLower;
+      //crossover = crossoverLower;
 //      start = System.currentTimeMillis();
       double[][] average = new double[30][1000];
-      while (crossover <= crossoverUpper) {
+	  
+      //while (crossover <= crossoverUpper) {
+		 
          try {
             PrintWriter pw = new PrintWriter(new File("data_on_c_"+crossover+"__m_"+mutation+".csv"));
             StringBuilder sb = new StringBuilder();
@@ -65,8 +68,10 @@ public class GA {
             }
             sb.append('\n');
             
+			long random_number;
+			average = new double[30][1000];
             for (int count = 0; count < 30; count++) {
-               int random_number = (int)(Math.random()*100);
+               random_number = System.currentTimeMillis();//(int)(Math.random()*100);
                sb.append("Seed "+ random_number);
                sb.append(',');
                rand = new Random(random_number);
@@ -74,6 +79,10 @@ public class GA {
                int gens = 1;
                Route bestFit = null;
                Route[] children;
+			   newPop = null;
+			   
+			   pop = new Population(file, this.POP_SIZE);;
+			   
       //         System.out.println("Running... Please be patient");
                while (gens <= GEN_NUM) {
 
@@ -113,6 +122,7 @@ public class GA {
                bestFit = endLocalSearch(bestFit);
                bestFit.calcFitness();
                globalBest = bestFit.getFitness();
+			   globalBest = Double.MAX_VALUE;
 
    //            System.out.println("Best result is:");
    //            printChild(bestFit);
@@ -130,15 +140,24 @@ public class GA {
             sb = new StringBuilder();
             
             double compute = 0;
-            for (int i = 0; i < average[0].length; i++) {
-               compute = 0;
-               for (int j = 0; j < average.length; j++) {
-                  compute += average[j][i];
-               }
-               compute = compute / 30;
-               sb.append(compute+",");
-               sb.append('\n');
-            }
+			
+			for (int i = 0; i < average[0].length; i++) { // rows
+				compute = 0;
+				for (int j = 0; j < average.length; j++) { // columns
+					compute += average[j][i];
+				}
+				sb.append((compute / average.length)+"");
+				sb.append('\n');
+			}
+            //for (int i = 0; i < average[0].length; i++) {
+              // compute = 0;
+             //  for (int j = 0; j < average.length; j++) {
+               //   compute += average[j][i];
+              // }
+              // compute = compute / 30;
+              // sb.append(compute+",");
+              // sb.append('\n');
+            //}
             
             pw.write(sb.toString());
             pw.close();
@@ -146,16 +165,16 @@ public class GA {
          } catch (FileNotFoundException ex) {
             Logger.getLogger(GA.class.getName()).log(Level.SEVERE, null, ex);
          }
-         System.out.println("Changing crossover and mutation for the "+ numberOfTimes+" time");
-         numberOfTimes++;
+         //System.out.println("Changing crossover and mutation for the "+ numberOfTimes+" time");
+         //numberOfTimes++;
          
-         mutation += 0.005;
+         //mutation += 0.005;
          
-         if (mutation  > mutationUpper) {
-            mutation = mutationLower;
-            crossover += 0.1;
-         }
-      }
+         //if (mutation  > mutationUpper) {
+            //mutation = mutationLower;
+            //crossover += 0.1;
+         //}
+      //}
 //      end = System.currentTimeMillis();
 //      long timeTook = end - start;
 //      System.out.println("time it took in seconds = "+(timeTook / 1000));
